@@ -14,7 +14,7 @@ def collect_calibration_data():
     gaze = GazeTracking()
     webcam = cv2.VideoCapture(0)
     position = (250, 250)
-    cv2.namedWindow('image')
+    cv2.namedWindow('image', cv2.WINDOW_NORMAL)
     cv2.setWindowProperty('image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     counter = 0
@@ -43,7 +43,7 @@ def collect_calibration_data():
         if key == ord('q'):
             break
 
-        if counter > 40:
+        if counter > 20:
             position = (random.randint(0, resolution[1]), random.randint(0, resolution[0]))
             counter = 0
 
@@ -56,13 +56,17 @@ def collect_calibration_data():
                                        'position_x', 'position_y'])
     return data
 
-def test_calibration(modelx, modely):
+def test_calibration(model):
     gaze = GazeTracking()
     webcam = cv2.VideoCapture(0)
-    position = (250, 250)
-    cv2.namedWindow('image')
+    position_history = [(250, 250) for i in range(10)]
+    cv2.namedWindow('image', cv2.WINDOW_NORMAL)
     cv2.setWindowProperty('image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     resolution = (1080, 1920)
+
+    def mean(tuple_li):
+        return sum([x[0] for x in position_history])/len(position_history),\
+            sum([x[1] for x in position_history]) / len(position_history)
 
     while True:
         _, cam_frame = webcam.read()
@@ -70,12 +74,12 @@ def test_calibration(modelx, modely):
 
         if gaze.horizontal_ratio() is not None:
             data = np.array([gaze.horizontal_ratio(), gaze.vertical_ratio()]).reshape(1, -1)
-            x = modelx.predict(data)
-            y = modely.predict(data)
-            position = (x, y)
+            y = model.predict(data)
+            position_history.append((y[:, 0], y[:, 1]))
+            position_history.pop(0)
 
         frame = np.ones((resolution[0], resolution[1], 3), np.uint8) * 255
-        cv2.circle(frame, position, 10, (0, 0, 0), -1)
+        cv2.circle(frame, mean(position_history), 10, (0, 0, 0), -1)
 
         cv2.imshow('image', frame)
 
@@ -89,8 +93,10 @@ def test_calibration(modelx, modely):
 
 
 if __name__ == '__main__':
-    modelx, modely = linear_model.train_model()
-    test_calibration(modelx, modely)
-    '''data = collect_calibration_data().dropna()
-    data.to_csv('calibration_data.csv')
+
+    model = linear_model.train_model()
+    test_calibration(model)
+    '''
+    data = collect_calibration_data().dropna()
+    data.to_csv('calibration_data_test.csv')
     print("ok")'''
