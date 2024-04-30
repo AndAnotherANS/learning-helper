@@ -1,3 +1,4 @@
+import os
 import random
 
 import cv2
@@ -5,7 +6,11 @@ import numpy as np
 import pandas as pd
 from gaze_tracking import GazeTracking
 
-import linear_model
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
 
 
 def collect_calibration_data():
@@ -54,6 +59,8 @@ def collect_calibration_data():
                                        'pupil_left_coords_x', 'pupil_left_coords_y',
                                        'pupil_right_coords_x', 'pupil_right_coords_y',
                                        'position_x', 'position_y'])
+
+    data.dropna().to_csv(os.environ["PROJECT_DIR"] + '\\data\\calibration_data.csv')
     return data
 
 def test_calibration(model):
@@ -65,8 +72,8 @@ def test_calibration(model):
     resolution = (1080, 1920)
 
     def mean(tuple_li):
-        return sum([x[0] for x in position_history])/len(position_history),\
-            sum([x[1] for x in position_history]) / len(position_history)
+        return sum([x[0] for x in tuple_li])/len(tuple_li),\
+            sum([x[1] for x in tuple_li]) / len(tuple_li)
 
     while True:
         _, cam_frame = webcam.read()
@@ -92,11 +99,29 @@ def test_calibration(model):
     cv2.destroyAllWindows()
 
 
-if __name__ == '__main__':
 
-    model = linear_model.train_model()
+def load_data(path):
+    df = pd.read_csv(path).dropna()
+    x = df.loc[:, ['horizontal_ratio', 'vertical_ratio']].values
+    y = df.loc[:, ["position_x", "position_y"]]
+    return x, y
+
+def train_model():
+    x_train, y_train = load_data("calibration_data.csv")
+    x_test, y_test = load_data("calibration_data_val.csv")
+    model = make_pipeline(
+        StandardScaler(),
+        MultiOutputRegressor(
+            TransformedTargetRegressor(regressor=SVR(C=1., gamma=0.2), transformer=StandardScaler())
+        )
+    )
+    model.fit(x_train, y_train)
+
+    print(model.score(x_test, y_test))
+    return model
+
+
+if __name__ == '__main__':
+    collect_calibration_data()
+    model = train_model()
     test_calibration(model)
-    '''
-    data = collect_calibration_data().dropna()
-    data.to_csv('calibration_data_test.csv')
-    print("ok")'''
