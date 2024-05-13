@@ -10,5 +10,5 @@
       "default_title": "Take a screen shot!"
     },
     "permissions": ["activeTab"],
-    "manifest_version": 3
+    "manifest_version": 2
   }
