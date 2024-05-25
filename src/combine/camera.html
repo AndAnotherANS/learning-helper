@@ -13,15 +13,28 @@
             </meta>
         </meta>
     </head>
+
+
     <body>
-        <div id="main-container">
-            <div id="video-container">
-                <video autoplay="" id="gum" muted="">
-                </video>
+        <div class="divide-screen">
+            <div id="camera">
+                <div id="video-container">
+                    <video autoplay="" id="gum" muted="">
+                    </video>
+                </div>
+                <canvas id="canvas">
+                </canvas>
             </div>
-            <canvas id="canvas">
-            </canvas>
+            <div id="screenshot">
+                <img
+                id="target"
+                src="images/white.png"
+                height="480"
+                style="border: black solid 1px"
+              />
+            </div>
         </div>
+      
         <script src="camera.js">
         </script>
     </body>

@@ -1,7 +1,7 @@
 from flask import Flask, request
 app = Flask(__name__)
 
-UPLOAD_FOLDER = '../data/'
+UPLOAD_FOLDER = 'data/'
 IMAGES_NR = 0
 
 @app.route('/')
