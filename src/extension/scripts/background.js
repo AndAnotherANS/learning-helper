@@ -3,7 +3,7 @@
 function startRecord() {
     chrome.windows.getCurrent({}, function(e) {
         chrome.windows.create({
-            url: "camera.html",
+            url: "preview.html",
             type: "popup",
             width: 266,
             height: 200,
