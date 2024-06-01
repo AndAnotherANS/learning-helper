@@ -1,14 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CPE text</title>
-    <script></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
+{% extends "home.html" %}
+
+{% block title %}A2 Text{% endblock %}
+
+{% block content %}
+<div id="start_button">
+    Start learning-helper
+</div>
+
         <div id="start_button">
             Start learning-helper
         </div>
@@ -27,6 +25,4 @@
             
             That is because the magazine is always slightly uncomfortable to be with. It is not like a cosy member of the family, nor even like a friend. It is the strong, self-opinionated person that you can never quite make up your mind whether you like or not. You admire him, but you are slightly uneasy with him. The people around him might not altogether approve of everything he says; some might not care for him at all. But they feel compelled to listen. The self-confidence is too compelling. And just when you think he is beginning to become rather a bore, he surprises you with his genuine intelligence. He makes a broad joke, and then suddenly he is demanding you follow him in the turning of an intellectual somersault.
         </div>
-    </div>
-</body>
-</html>
+{% endblock %}

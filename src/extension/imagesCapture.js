@@ -1,6 +1,5 @@
 'use strict';
 
-
 async function screenshotOfTab() {
   try {
     // Capture the visible tab and wait for the promise to resolve
@@ -47,10 +46,10 @@ var startTime;
 var finishTime;
 
 
-var gumVideo = document.querySelector('video#gum');
-var canvas = document.querySelector('canvas');
-canvas.width = 266;
-canvas.height = 200;
+// var gumVideo = document.querySelector('video#gum');
+// var canvas = document.querySelector('canvas');
+// canvas.width = 266;
+// canvas.height = 200;
 const stream_promise = navigator.mediaDevices.getDisplayMedia({video: true});
 
 
@@ -93,7 +92,53 @@ async function grabScreenshot() {
     console.error(err);
   }
 }
+async function handleCapturingImages() {
+  // Define canvas context
+  let ctx = canvas.getContext('2d');
 
+  // Define the number of photos to capture
+  var how_many_photos = 3;
+
+  // Loop to capture multiple photos
+  for (var i = how_many_photos; i > 0; i--) {
+      console.log("Capturing photo ", i);
+
+      // Capture screenshot of the tab
+      const screenshot = await grabScreenshot();
+
+      // Capture screenshot from the video stream
+      const camera = await grabCameraScreenshot(ctx);
+
+      // Create FormData object to send data via POST request
+      let formData = new FormData();
+      formData.append('camera', camera, 'camera.jpg');
+      formData.append('screenshot', screenshot, 'screenshot.png');
+
+      // Send POST request to upload the images
+      await fetch('http://127.0.0.1:5000/upload', {
+          method: 'POST',
+          body: formData
+      })
+      .then(response => response.text())
+      .then(result => {
+          console.log('Success:', result);
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+
+      // Wait for 5 seconds before capturing the next photo
+      await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+}
+
+// Function to capture screenshot from the camera stream and draw on canvas
+async function grabCameraScreenshot(ctx) {
+  ctx.drawImage(gumVideo, 0, 0, canvas.width, canvas.height);
+  return await new Promise(resolve => {
+      canvas.toBlob(resolve, 'images/jpeg');
+  });
+}
 
 gumVideo.addEventListener('click', async function(){
     let ctx = canvas.getContext('2d');
