@@ -40,7 +40,7 @@ def start_record():
     response_data = {'success': True}
     return jsonify(response_data)
 
-@app.route('/upload', methods=['POST'])
+@app.route('/C2/upload', methods=['POST'])
 def upload_screenshot():
     global IMAGES_NR
     print("serwer")

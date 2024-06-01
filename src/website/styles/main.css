@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: row;
 }
+
 #camera{
   background-color: blue;
   width: 50%;
@@ -10,10 +11,9 @@
   background-color: #FF5722;
   width: 50%;
 }
-
-
-
-
+.divide-screen * {
+    display: none;
+}
 body {
     font-family: "Roboto", Arial, sans-serif !important;
     margin: 0;

