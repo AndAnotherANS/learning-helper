@@ -6,15 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
   canvas.width = 266;
   canvas.height = 200;
 
-document.getElementById('start_button').addEventListener('click', handleImagesCapturing);
-
+  document.getElementById('start_button').addEventListener('click', async function() {
+    await handleImagesCapturing();
+  });
+  
 var mediaSource = new MediaSource();
 mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
-var mediaRecorder;
 var sourceBuffer;
-var intervalTimer;
-var startTime;
-var finishTime;
+
 
 
 const stream_promise = navigator.mediaDevices.getDisplayMedia({video: true});

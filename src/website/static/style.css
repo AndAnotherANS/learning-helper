@@ -28,6 +28,16 @@ body{
 #start_button:hover {
     box-shadow: 0 0 20px 10px rgba(120, 250, 250, 0.5);
 }
-.to-be-hidden *{
-    display: none;
+video, canvas {
+    visibility: hidden;
+    position: absolute;
 }
+/* .to-be-hidden *{
+    display: none;
+} */
+
+
+
+
+
+

